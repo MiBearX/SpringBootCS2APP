@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CS2 Skin Catalog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .title { margin: 0 0 16px; }
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { text-align: left; padding: 10px; border-bottom: 2px solid #ddd; background: #fafafa; }
+    tbody td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+    img { display: block; max-width: 200px; height: auto; object-fit: cover; }
+    .controls { margin-bottom: 1em; }
+    input[type="text"] { width: 100%; max-width: 400px; padding: 8px 12px; box-sizing: border-box; }
+    button { padding: 8px 12px; cursor: pointer; }
+    a { color: #0a58ca; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">CS2 Skin Catalog</h1>
+
+    <!-- Search input (visual only) -->
+    <div class="controls">
+      <input type="text" placeholder="Search skins or guns…" disabled />
+    </div>
+
+    <!-- Sort button (visual only) -->
+    <div class="controls">
+      <button disabled>Sort Price: Ascending</button>
+    </div>
+
+    <div class="table-container">
+      <table class="skins-table">
+        <thead>
+          <tr>
+            <th>Preview</th>
+            <th>Skin Name</th>
+            <th>Gun</th>
+            <th>Rarity</th>
+            <th>Collection</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+<script>
+    async function loadSkins() {
+      const res = await fetch('/api/skins');
+      const skins = await res.json();
+    
+      const tbody = document.querySelector('.skins-table tbody');
+      tbody.innerHTML = '';
+    
+      skins.forEach(skin => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><img src="${skin.image_url}" alt="${skin.skin_name}" width="200"/></td>
+          <td>${skin.skin_name}</td>
+          <td>${skin.gun_name}</td>
+          <td>${skin.rarity ?? ''}</td>
+          <td>${skin.collection ?? ''}</td>
+          <td>${skin.price ?? ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    
+    loadSkins();
+    </script>
+    
+</html>
