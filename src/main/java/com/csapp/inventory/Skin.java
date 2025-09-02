@@ -1,4 +1,5 @@
 package com.csapp.inventory;
+import java.math.BigDecimal;
 import jakarta.persistence.*;
 
 @Entity
@@ -30,6 +31,9 @@ public class Skin {
 
     @Column(name = "stattrak_price")
     private String stattrakPrice;
+
+    @Column(name = "price_num")
+    private BigDecimal priceNum;
 
     public Integer getId() { return id; }
     public String getGunName() { return gunName; }

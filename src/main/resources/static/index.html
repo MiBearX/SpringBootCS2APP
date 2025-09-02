@@ -29,9 +29,8 @@
       <input type="text" placeholder="Search skins or guns…" disabled />
     </div>
 
-    <!-- Sort button (visual only) -->
     <div class="controls">
-      <button disabled>Sort Price: Ascending</button>
+      <button id="sortBtn">Sort Price: Ascending</button>
     </div>
 
     <div class="table-container">
@@ -53,28 +52,45 @@
   </div>
 </body>
 <script>
+    let sortAsc = false;
+
     async function loadSkins() {
-      const res = await fetch('/api/skins');
-      const skins = await res.json();
-    
-      const tbody = document.querySelector('.skins-table tbody');
-      tbody.innerHTML = '';
-    
-      skins.forEach(skin => {
+        const order = sortAsc ? 'asc' : 'desc';
+        const res = await fetch(`/api/skins?page=0&size=25&sort=priceNum,${order}`);
+        const page = await res.json();
+        const skins = page.content;
+        renderTable(skins);
+    }
+
+    function renderTable(skins) {
+        const tbody = document.querySelector('.skins-table tbody');
+        tbody.innerHTML = '';
+
+        skins.forEach(skin => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><img src="${skin.image_url}" alt="${skin.skin_name}" width="200"/></td>
-          <td>${skin.skin_name}</td>
-          <td>${skin.gun_name}</td>
-          <td>${skin.rarity ?? ''}</td>
-          <td>${skin.collection ?? ''}</td>
-          <td>${skin.price ?? ''}</td>
+            <td><img src="${skin.image_url || ''}" alt="${skin.skin_name || ''}" width="200"/></td>
+            <td>${skin.skin_name || ''}</td>
+            <td>${skin.gun_name || ''}</td>
+            <td>${skin.rarity || ''}</td>
+            <td>${skin.collection || ''}</td>
+            <td>${skin.price || ''}</td>
         `;
         tbody.appendChild(tr);
-      });
+        });
     }
-    
-    loadSkins();
-    </script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const sortBtn = document.getElementById("sortBtn");
+
+        sortBtn.addEventListener("click", () => {
+            sortAsc = !sortAsc;
+            sortBtn.textContent = sortAsc ? "Sort Price: Ascending" : "Sort Price: Descending";
+            loadSkins();
+        });
+
+        loadSkins();
+    });
+</script>
     
 </html>
