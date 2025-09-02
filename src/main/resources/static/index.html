@@ -26,7 +26,7 @@
 
     <!-- Search input (visual only) -->
     <div class="controls">
-      <input type="text" placeholder="Search skins or guns…" disabled />
+      <input type="text" placeholder="Search skins or guns…" id="searchBox"/>
     </div>
 
     <div class="controls">
@@ -53,10 +53,20 @@
 </body>
 <script>
     let sortAsc = false;
+    let query = '';
+    let pageNum = 0;
+    let pageSize = 25;
+    let debounceTimer;
 
     async function loadSkins() {
         const order = sortAsc ? 'asc' : 'desc';
-        const res = await fetch(`/api/skins?page=0&size=25&sort=priceNum,${order}`);
+        const params = new URLSearchParams({
+            sort: `priceNum,${order}`,
+            page: String(pageNum),
+            size: String(pageSize)
+        })
+        if (query.trim()) params.set('q', query.trim());
+        const res = await fetch(`/api/skins?${params.toString()}`);
         const page = await res.json();
         const skins = page.content;
         renderTable(skins);
@@ -82,11 +92,21 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         const sortBtn = document.getElementById("sortBtn");
+        const searchBox = document.getElementById("searchBox");
 
         sortBtn.addEventListener("click", () => {
             sortAsc = !sortAsc;
             sortBtn.textContent = sortAsc ? "Sort Price: Ascending" : "Sort Price: Descending";
             loadSkins();
+        });
+
+        searchBox.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            query = searchBox.value;
+            pageNum = 0;
+            loadSkins();
+        }, 300);
         });
 
         loadSkins();

@@ -2,6 +2,8 @@ package com.csapp.inventory;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.csapp.inventory.Skin;
 import com.csapp.inventory.SkinRepository;
 import java.util.List;
@@ -20,8 +22,11 @@ public class SkinsController {
     }
 
     @GetMapping
-    public Page<Skin> all(Pageable pageable) {
-        return repo.findByPriceNumIsNotNull(pageable);
+    public Page<Skin> all(@RequestParam(name = "q", required = false) String q, Pageable pageable) {
+        if (q == null || q.isBlank()) {
+            return repo.findByPriceNumIsNotNull(pageable);
+        } else {
+            return repo.searchByNameOrGun(q, pageable);
+        }
     }
-
 }
