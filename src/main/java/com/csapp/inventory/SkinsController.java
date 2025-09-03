@@ -9,6 +9,7 @@ import com.csapp.inventory.SkinRepository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -28,5 +29,10 @@ public class SkinsController {
         } else {
             return repo.searchByNameOrGun(q, pageable);
         }
+    }
+
+    @GetMapping("/{id}")
+    public Skin getSingleSkin(@PathVariable Integer id) {
+        return repo.findById(id).orElse(null);
     }
 }

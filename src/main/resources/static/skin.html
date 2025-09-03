@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Skin Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .back { margin-bottom: 16px; display: inline-block; }
+    .hero { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
+    .hero img { width: 100%; height: auto; object-fit: contain; background: #fafafa; border: 1px solid #eee; }
+    .kv { margin: 8px 0; }
+    .kv b { display: inline-block; width: 140px; color: #555; }
+    .price { font-size: 1.2em; font-weight: 600; margin-top: 8px; }
+    .muted { color: #777; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="/" onclick="history.length>1?history.back():null; return false;">← Back</a>
+    <h1 id="title">Loading…</h1>
+
+    <div id="content" class="hero" style="display:none;">
+      <img id="image" alt="" />
+      <div>
+        <div class="kv"><b>Gun:</b> <span id="gun_name"></span></div>
+        <div class="kv"><b>Skin:</b> <span id="skin_name"></span></div>
+        <div class="kv"><b>Rarity:</b> <span id="rarity"></span></div>
+        <div class="kv"><b>Collection:</b> <span id="collection"></span></div>
+        <div class="kv"><b>Type:</b> <span id="gun_type"></span></div>
+        <div class="kv"><b>Price:</b> <span id="price"></span></div>
+        <div class="kv"><b>StatTrak Price:</b> <span id="stattrak_price"></span></div>
+        <div class="kv muted"><b>ID:</b> <span id="id"></span></div>
+      </div>
+    </div>
+
+    <p id="empty" class="muted" style="display:none;">Skin not found.</p>
+  </div>
+
+  <script>
+    async function loadSkin() {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      if (!id) {
+        document.getElementById('title').textContent = 'Missing id';
+        document.getElementById('empty').style.display = 'block';
+        return;
+      }
+
+      const res = await fetch(`/api/skins/${encodeURIComponent(id)}`);
+      if (!res.ok) {
+        document.getElementById('title').textContent = 'Not found';
+        document.getElementById('empty').style.display = 'block';
+        return;
+      }
+      const skin = await res.json();
+      if (!skin || !skin.id) {
+        document.getElementById('title').textContent = 'Not found';
+        document.getElementById('empty').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('title').textContent = skin.skin_name || 'Skin Details';
+      document.getElementById('id').textContent = skin.id ?? '';
+      document.getElementById('gun_name').textContent = skin.gun_name ?? '';
+      document.getElementById('skin_name').textContent = skin.skin_name ?? '';
+      document.getElementById('rarity').textContent = skin.rarity ?? '';
+      document.getElementById('collection').textContent = skin.collection ?? '';
+      document.getElementById('gun_type').textContent = skin.gun_type ?? '';
+      document.getElementById('price').textContent = skin.price ?? '';
+      document.getElementById('stattrak_price').textContent = skin.stattrak_price ?? '';
+      const img = document.getElementById('image');
+      img.src = skin.image_url || '';
+      img.alt = skin.skin_name || '';
+
+      document.getElementById('content').style.display = 'grid';
+    }
+
+    document.addEventListener('DOMContentLoaded', loadSkin);
+  </script>
+</body>
+</html>

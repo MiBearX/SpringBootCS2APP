@@ -80,7 +80,7 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><img src="${skin.image_url || ''}" alt="${skin.skin_name || ''}" width="200"/></td>
-            <td>${skin.skin_name || ''}</td>
+            <td><a href="/skin.html?id=${skin.id}">${skin.skin_name || ''}</a></td>
             <td>${skin.gun_name || ''}</td>
             <td>${skin.rarity || ''}</td>
             <td>${skin.collection || ''}</td>
