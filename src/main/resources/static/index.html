@@ -24,13 +24,31 @@
   <div class="container">
     <h1 class="title">CS2 Skin Catalog</h1>
 
-    <!-- Search input (visual only) -->
     <div class="controls">
       <input type="text" placeholder="Search skins or guns…" id="searchBox"/>
     </div>
+    <div class="toolbar" style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+        <div class="controls">
+        <button id="sortBtn">Sort Price: Ascending</button>
+        </div>
 
-    <div class="controls">
-      <button id="sortBtn">Sort Price: Ascending</button>
+        <div class="controls"style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:8px; margin-top:12px;">
+            <label>
+                Page size:
+                <select id="sizeSel">
+                <option>10</option>
+                <option selected>25</option>
+                <option>50</option>
+                <option>100</option>
+                </select>
+            </label>
+
+            <div style="display:flex; align-items:right; gap:8px;">
+                <button id="prevBtn">‹ Prev</button>
+                <div id="pages" style="display:flex; gap:4px;"></div>
+                <button id="nextBtn">Next ›</button>
+            </div>
+        </div>
     </div>
 
     <div class="table-container">
@@ -57,6 +75,7 @@
     let pageNum = 0;
     let pageSize = 25;
     let debounceTimer;
+    let lastPageMeta = { first: true, last: true };
 
     async function loadSkins() {
         const order = sortAsc ? 'asc' : 'desc';
@@ -68,8 +87,21 @@
         if (query.trim()) params.set('q', query.trim());
         const res = await fetch(`/api/skins?${params.toString()}`);
         const page = await res.json();
+        lastPageMeta = { first: page.first === true, last: page.last === true };
         const skins = page.content;
         renderTable(skins);
+        renderPageState();
+    }
+
+    function renderPageState() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const sizeSel = document.getElementById('sizeSel');
+
+        prevBtn.disabled = lastPageMeta.first;
+        nextBtn.disabled = lastPageMeta.last;
+
+        sizeSel.value = String(pageSize);
     }
 
     function renderTable(skins) {
@@ -93,6 +125,9 @@
     document.addEventListener("DOMContentLoaded", () => {
         const sortBtn = document.getElementById("sortBtn");
         const searchBox = document.getElementById("searchBox");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const sizeSel = document.getElementById("sizeSel");
 
         sortBtn.addEventListener("click", () => {
             sortAsc = !sortAsc;
@@ -107,6 +142,26 @@
             pageNum = 0;
             loadSkins();
         }, 300);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (!lastPageMeta.first && pageNum > 0) {
+            pageNum -= 1;
+            loadSkins();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (!lastPageMeta.last) {
+            pageNum += 1;
+            loadSkins();
+            }
+        });
+        
+        sizeSel.addEventListener('change', () => {
+            pageSize = parseInt(sizeSel.value, 10) || 25;
+            pageNum = 0;
+            loadSkins();
         });
 
         loadSkins();
